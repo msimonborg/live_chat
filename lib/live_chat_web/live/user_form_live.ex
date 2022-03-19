@@ -2,6 +2,7 @@ defmodule LiveChatWeb.UserFormLive do
   use LiveChatWeb, :live_view
 
   alias LiveChat.User
+  alias LiveChatWeb.UserAuth
 
   @impl true
   def render(assigns) do
@@ -20,7 +21,11 @@ defmodule LiveChatWeb.UserFormLive do
 
   @impl true
   def mount(_params, session, socket) do
-    session_username = Map.get(session, "username")
+    session_username =
+      session
+      |> Map.get("username")
+      |> check_user_presence()
+
     changeset = User.changeset(%User{name: session_username}, %{})
 
     socket =
@@ -33,7 +38,7 @@ defmodule LiveChatWeb.UserFormLive do
 
   @impl true
   def handle_event("validate", %{"user" => user_params}, socket) do
-    session_username = socket.assigns.session_username
+    session_username = socket.assigns.session_username |> check_user_presence()
 
     changeset =
       %User{name: session_username}
@@ -41,5 +46,12 @@ defmodule LiveChatWeb.UserFormLive do
       |> Map.put(:action, :insert)
 
     {:noreply, assign(socket, :changeset, changeset)}
+  end
+
+  defp check_user_presence(name) do
+    case UserAuth.online?(name) do
+      false -> name
+      true -> nil
+    end
   end
 end

@@ -22,7 +22,7 @@ defmodule LiveChatWeb.Router do
     post "/", UserController, :create
   end
 
-  live_session :default, on_mount: LiveChatWeb.AssignUser do
+  live_session :default, on_mount: LiveChatWeb.UserAuth do
     scope "/", LiveChatWeb do
       pipe_through :browser
 

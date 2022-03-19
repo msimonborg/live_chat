@@ -1,8 +1,13 @@
 defmodule LiveChatWeb.LobbyLive do
   use LiveChatWeb, :live_view
 
+  alias Phoenix.PubSub
   alias LiveChat.Rooms
   alias LiveChat.Rooms.Room
+  alias LiveChat.UserStore
+
+  @pubsub LiveChat.PubSub
+  @topic "lobby"
 
   @impl true
   def render(assigns) do
@@ -35,6 +40,7 @@ defmodule LiveChatWeb.LobbyLive do
   def mount(_params, _session, socket) do
     rooms = Rooms.list_rooms()
     changeset = Rooms.change_room(%Room{})
+    PubSub.subscribe(@pubsub, @topic)
     {:ok, assign(socket, rooms: rooms, changeset: changeset)}
   end
 
@@ -48,11 +54,23 @@ defmodule LiveChatWeb.LobbyLive do
     create_attrs = Map.put(room_params, "created_by", socket.assigns.name)
 
     case Rooms.create_room(create_attrs) do
-      {:ok, _room} ->
-        {:noreply, assign(socket, :rooms, Rooms.list_rooms())}
+      {:ok, room} ->
+        PubSub.broadcast(@pubsub, @topic, {:put, room})
+        {:noreply, socket}
 
       {:error, changeset} ->
         {:noreply, assign(socket, :changeset, changeset)}
     end
+  end
+
+  @impl true
+  def handle_info({:put, room}, socket) do
+    rooms = [room | socket.assigns.rooms]
+    {:noreply, assign(socket, :rooms, rooms)}
+  end
+
+  @impl true
+  def terminate(_reason, socket) do
+    UserStore.remove(socket.assigns.name)
   end
 end
