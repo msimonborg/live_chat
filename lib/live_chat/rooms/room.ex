@@ -19,7 +19,7 @@ defmodule LiveChat.Rooms.Room do
   def changeset(room, attrs) do
     room
     |> cast(attrs, [:name, :description, :created_by])
-    |> validate_required([:name, :description, :created_by])
+    |> validate_required([:name, :created_by])
     |> unique_constraint(:name)
   end
 end
