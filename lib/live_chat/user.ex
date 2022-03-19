@@ -3,7 +3,8 @@ defmodule LiveChat.User do
 
   import Ecto.Changeset
 
-  alias LiveChat.{User, UserStore}
+  alias LiveChat.User
+  alias LiveChatWeb.UserAuth
 
   embedded_schema do
     field :name, :string
@@ -14,7 +15,7 @@ defmodule LiveChat.User do
     |> cast(attrs, [:name])
     |> validate_required([:name])
     |> validate_change(:name, fn :name, name ->
-      if UserStore.taken?(name), do: [name: "already taken"], else: []
+      if UserAuth.online?(name), do: [name: "already taken"], else: []
     end)
   end
 

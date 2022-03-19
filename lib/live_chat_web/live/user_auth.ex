@@ -1,7 +1,6 @@
 defmodule LiveChatWeb.UserAuth do
   import Phoenix.LiveView
 
-  alias LiveChat.UserStore
   alias LiveChatWeb.Presence
   alias LiveChatWeb.Router.Helpers, as: Routes
 
@@ -9,19 +8,14 @@ defmodule LiveChatWeb.UserAuth do
 
   def on_mount(:default, _params, session, socket) do
     name = Map.get(session, "username")
+    Process.send(self(), {:authorize, name}, [])
 
-    if online?(name) do
-      socket =
-        socket
-        |> put_flash(:error, "Username is already taken")
-        |> push_redirect(to: Routes.user_path(socket, :new))
+    socket =
+      socket
+      |> authorization_hook()
+      |> assign(:name, name)
 
-      {:halt, socket}
-    else
-      Presence.track(self(), @topic, name, %{})
-      UserStore.put(name)
-      {:cont, assign(socket, name: name)}
-    end
+    {:cont, socket}
   end
 
   def online?(name) do
@@ -29,5 +23,27 @@ defmodule LiveChatWeb.UserAuth do
     |> Presence.list()
     |> Map.keys()
     |> Enum.member?(name)
+  end
+
+  defp authorization_hook(socket) do
+    attach_hook(socket, :authorize, :handle_info, fn
+      {:authorize, name}, socket ->
+        socket =
+          case online?(name) or is_nil(name) do
+            true ->
+              socket
+              |> put_flash(:error, "Pick a new username")
+              |> redirect(to: Routes.user_path(socket, :new))
+
+            false ->
+              Presence.track(self(), @topic, name, %{})
+              socket
+          end
+
+        {:halt, detach_hook(socket, :authorize, :handle_info)}
+
+      _info, socket ->
+        {:cont, socket}
+    end)
   end
 end

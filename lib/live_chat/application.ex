@@ -12,7 +12,6 @@ defmodule LiveChat.Application do
       LiveChatWeb.Telemetry,
       {Phoenix.PubSub, name: LiveChat.PubSub},
       LiveChatWeb.Presence,
-      LiveChat.UserStore,
       LiveChatWeb.Endpoint
     ]
 

@@ -3,7 +3,6 @@ defmodule LiveChatWeb.LobbyLive do
 
   alias LiveChat.Rooms
   alias LiveChat.Rooms.Room
-  alias LiveChat.UserStore
   alias LiveChatWeb.RoomLive
   alias Phoenix.PubSub
 
@@ -68,10 +67,5 @@ defmodule LiveChatWeb.LobbyLive do
   def handle_info({:put, room}, socket) do
     rooms = [room | socket.assigns.rooms]
     {:noreply, assign(socket, :rooms, rooms)}
-  end
-
-  @impl true
-  def terminate(_reason, socket) do
-    UserStore.remove(socket.assigns.name)
   end
 end
