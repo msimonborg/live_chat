@@ -21,8 +21,10 @@ defmodule LiveChatWeb do
     quote do
       use Phoenix.Controller, namespace: LiveChatWeb
 
+      import Phoenix.LiveView.Controller
       import Plug.Conn
       import LiveChatWeb.Gettext
+
       alias LiveChatWeb.Router.Helpers, as: Routes
     end
   end

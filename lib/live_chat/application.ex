@@ -8,16 +8,11 @@ defmodule LiveChat.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      # Start the Ecto repository
       LiveChat.Repo,
-      # Start the Telemetry supervisor
       LiveChatWeb.Telemetry,
-      # Start the PubSub system
       {Phoenix.PubSub, name: LiveChat.PubSub},
-      # Start the Endpoint (http/https)
+      LiveChat.UserStore,
       LiveChatWeb.Endpoint
-      # Start a worker by calling: LiveChat.Worker.start_link(arg)
-      # {LiveChat.Worker, arg}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

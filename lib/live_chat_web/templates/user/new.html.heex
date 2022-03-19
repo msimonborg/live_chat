@@ -1,0 +1,6 @@
+<section class="phx-hero">
+  <h1><%= gettext "Welcome to %{name}!", name: "LiveChat" %></h1>
+</section>
+
+<h1>Enter your username</h1>
+<%= live_render @conn, LiveChatWeb.UserFormLive %>

@@ -4,6 +4,7 @@ defmodule LiveChatWeb.Router do
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
+    plug :fetch_flash
     plug :fetch_live_flash
     plug :put_root_layout, {LiveChatWeb.LayoutView, :root}
     plug :protect_from_forgery
@@ -17,7 +18,10 @@ defmodule LiveChatWeb.Router do
   scope "/", LiveChatWeb do
     pipe_through :browser
 
-    get "/", PageController, :index
+    get "/", UserController, :new
+    post "/", UserController, :create
+
+    live "/lobby", LobbyLive
   end
 
   # Other scopes may use custom stacks.
