@@ -1,11 +1,16 @@
 defmodule LiveChat.Rooms.Room do
   use Ecto.Schema
+
   import Ecto.Changeset
+
+  alias LiveChat.Messages.Message
 
   schema "rooms" do
     field :created_by, :string
     field :description, :string
     field :name, :string
+
+    has_many :messages, Message
 
     timestamps()
   end

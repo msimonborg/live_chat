@@ -4,8 +4,8 @@ defmodule LiveChat.Rooms do
   """
 
   import Ecto.Query, warn: false
-  alias LiveChat.Repo
 
+  alias LiveChat.Repo
   alias LiveChat.Rooms.Room
 
   @doc """
@@ -36,6 +36,7 @@ defmodule LiveChat.Rooms do
 
   """
   def get_room!(id), do: Repo.get!(Room, id)
+  def get_room!(id, preload: associations), do: get_room!(id) |> Repo.preload(associations)
 
   @doc """
   Creates a room.
