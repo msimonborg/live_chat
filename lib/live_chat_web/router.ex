@@ -20,8 +20,14 @@ defmodule LiveChatWeb.Router do
 
     get "/", UserController, :new
     post "/", UserController, :create
+  end
 
-    live "/lobby", LobbyLive
+  live_session :default, on_mount: LiveChatWeb.AssignUser do
+    scope "/", LiveChatWeb do
+      pipe_through :browser
+
+      live "/lobby", LobbyLive
+    end
   end
 
   # Other scopes may use custom stacks.

@@ -3,7 +3,6 @@ defmodule LiveChatWeb.LobbyLive do
 
   alias LiveChat.Rooms
   alias LiveChat.Rooms.Room
-  alias LiveChat.UserStore
 
   @impl true
   def render(assigns) do
@@ -33,16 +32,10 @@ defmodule LiveChatWeb.LobbyLive do
   end
 
   @impl true
-  def mount(_params, session, socket) do
-    name = Map.get(session, "username")
-
-    if UserStore.taken?(name) do
-      rooms = Rooms.list_rooms()
-      changeset = Rooms.change_room(%Room{})
-      {:ok, assign(socket, name: name, rooms: rooms, changeset: changeset)}
-    else
-      {:ok, push_redirect(socket, to: Routes.user_path(socket, :new))}
-    end
+  def mount(_params, _session, socket) do
+    rooms = Rooms.list_rooms()
+    changeset = Rooms.change_room(%Room{})
+    {:ok, assign(socket, rooms: rooms, changeset: changeset)}
   end
 
   @impl true
