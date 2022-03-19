@@ -1,10 +1,11 @@
 defmodule LiveChatWeb.LobbyLive do
   use LiveChatWeb, :live_view
 
-  alias Phoenix.PubSub
   alias LiveChat.Rooms
   alias LiveChat.Rooms.Room
   alias LiveChat.UserStore
+  alias LiveChatWeb.RoomLive
+  alias Phoenix.PubSub
 
   @pubsub LiveChat.PubSub
   @topic "lobby"
@@ -29,7 +30,7 @@ defmodule LiveChatWeb.LobbyLive do
       <h2>Join a room:</h2>
       <ul>
         <%= for room <- @rooms do %>
-          <li><%= room.name %> - created by <%= room.created_by %></li>
+          <li><a href={Routes.live_path(@socket, RoomLive, room)}><%= room.name %> - created by <%= room.created_by %></a></li>
         <% end %>
       </ul>
     <% end %>

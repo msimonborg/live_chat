@@ -27,6 +27,7 @@ defmodule LiveChatWeb.Router do
       pipe_through :browser
 
       live "/lobby", LobbyLive
+      live "/room/:id", RoomLive
     end
   end
 
