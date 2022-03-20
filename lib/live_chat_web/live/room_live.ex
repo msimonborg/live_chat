@@ -21,7 +21,7 @@ defmodule LiveChatWeb.RoomLive do
         placeholder: "Message",
         id: "message-input",
         class:
-          "relative flex justify-center text-md mb-4 w-full block border border-gray-300 rounded-md"
+          "inline w-3/4 sm:w-5/6 justify-center text-md mb-4 max-w-full border border-gray-300 rounded-md"
       )
 
     assigns = assign(assigns, :input_opts, input_opts)
@@ -47,7 +47,11 @@ defmodule LiveChatWeb.RoomLive do
         <div class="block">
           <%= text_input f, :body, @input_opts %>
           <%= hidden_input f, :created_by, value: @name %>
-          <%= submit "Send", class: "w-full py-1 border border-transparent rounded-md bg-indigo-600 text-white hover:bg-indigo-700" %>
+          <%= submit class: "inline pt-1 pb-3 px-3 border border-transparent rounded-md bg-indigo-600 text-white hover:bg-indigo-700" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+            </svg>
+          <% end %>
         </div>
       </.form>
 
