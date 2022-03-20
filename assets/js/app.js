@@ -44,7 +44,12 @@ liveSocket.connect()
 window.liveSocket = liveSocket
 
 const chatBox = document.getElementById("chat-box");
-chatBox.scrollTop = chatBox.scrollHeight;
+if (chatBox) {
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
 
 const messageInput = document.getElementById("message-input");
-messageInput.focus();
+if (messageInput) {
+  messageInput.focus();
+}
