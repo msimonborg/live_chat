@@ -95,12 +95,14 @@ defmodule LiveChatWeb.RoomLive do
 
   def handle_event("save", %{"message" => message_params}, socket) do
     room = socket.assigns.room
-    topic = socket.assigns.topic
-    name = socket.assigns.name
     {:ok, message} = Messages.publish_message_to_room(room, message_params)
     changeset = Messages.change_message(%Message{})
+
+    topic = socket.assigns.topic
+    name = socket.assigns.name
     PubSub.broadcast(@pubsub, topic, {:not_typing, name})
     PubSub.broadcast(@pubsub, topic, {:new_message, message})
+
     {:noreply, assign(socket, changeset: changeset, refresh_input: true)}
   end
 
