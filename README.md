@@ -8,9 +8,10 @@ See it running on [Heroku](https://lit-basin-14283.herokuapp.com/).
 
 Clone the repository
 
-`$ git clone https://github.com/msimonborg/live_chat.git`
-
-`$ cd live_chat`
+```shell
+$ git clone https://github.com/msimonborg/live_chat.git
+$ cd live_chat
+```
 
 Install Erlang 24.3.2 and Elixir 1.13.3 (the latest versions at the time of writing).
 I recommend using `asdf`.
@@ -37,7 +38,7 @@ To start your Phoenix server:
   * Setup your app by installing dependencies, creating and migrating the database
   with `$ mix ecto.setup`
   * Run tests with `$ mix test`
-  * Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
+  * Start Phoenix endpoint with `$ mix phx.server` or inside IEx with `$ iex -S mix phx.server`
 
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
