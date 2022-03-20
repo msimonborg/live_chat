@@ -1,6 +1,10 @@
 # LiveChat
 
-## Running the app
+A simple chat app built with Phoenix LiveView, for the sake of learning.
+
+See it running on [Heroku](https://lit-basin-14283.herokuapp.com/).
+
+## Running the app locally
 
 Clone the repository
 
