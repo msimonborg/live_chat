@@ -21,9 +21,10 @@
                   <img class="block h-10 sm:h-12 w-auto" src={Routes.static_path(@conn, "/images/phoenix.png")} alt="Phoenix Framework Logo"/>
                 </a>
               </div>
-              <div class="hidden sm:block sm:ml-6">
+              <div class="hidden md:block sm:ml-6">
                 <div class="flex space-x-4">
-                  <a href="https://hexdocs.pm/phoenix/overview.html" class="text-gray-700 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Get Started</a>
+                  <a href="https://hexdocs.pm/phoenix/overview.html" class="text-gray-700 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Get Started with Phoenix</a>
+                  <a href="/" class="text-gray-700 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">LiveChat Home</a>
                   <%= if function_exported?(Routes, :live_dashboard_path, 2) do %>
                     <%= link "LiveDashboard", to: Routes.live_dashboard_path(@conn, :home), class: "text-gray-700 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium" %>
                   <% end %>
@@ -33,7 +34,7 @@
           </div>
         </div>
 
-        <div class="sm:hidden" id="mobile-menu">
+        <div class="md:hidden" id="mobile-menu">
           <div class="px-2 pt-2 pb-3 space-y-1">
             <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
             <a href="https://hexdocs.pm/phoenix/overview.html" class="text-gray-700 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Get Started</a>
