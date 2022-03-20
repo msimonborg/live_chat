@@ -33,7 +33,7 @@ defmodule LiveChatWeb.RoomLive do
       <div class="w-full h-80 sm:h-96 border border-solid rounded-md border-gray-500 overflow-y-auto" phx-hook="ChatRoom" id="chat-box">
         <div class="flex flex-col-reverse justify-end h-full">
           <%= for message <- @messages do %>
-            <p class="break-words"><%= "#{format_local_time(message.inserted_at, @local_timezone)} - #{message.created_by} - #{message.body}" %></p>
+            <p class="break-words my-1"><%= "#{format_local_time(message.inserted_at, @local_timezone)} - #{message.created_by} - #{message.body}" %></p>
           <% end %>
         </div>
       </div>
