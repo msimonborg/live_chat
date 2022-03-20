@@ -32,16 +32,17 @@ defmodule LiveChatWeb.LobbyLive do
           </div>
         </div>
 
+        <%= hidden_input f, :created_by, value: @name %>
         <%= submit "Create room", class: "px-4 py-2 border border-transparent rounded-md bg-indigo-600 text-white hover:bg-indigo-700"%>
       </.form>
       <div class="w-full h-auto py-8">
         <%= unless Enum.empty?(@rooms) do %>
-        <h2 class="text-lg sm:text-xl">Join a room</h2>
-        <ul>
-          <%= for room <- @rooms do %>
-            <li><a class="text-indigo-600 hover:text-indigo-800" href={Routes.live_path(@socket, RoomLive, room)}><%= room.name %> - created by <%= room.created_by %></a></li>
-          <% end %>
-        </ul>
+          <h2 class="text-lg sm:text-xl">Join a room</h2>
+          <ul>
+            <%= for room <- @rooms do %>
+              <li><a class="text-indigo-600 hover:text-indigo-800" href={Routes.live_path(@socket, RoomLive, room)}><%= room.name %> - created by <%= room.created_by %></a></li>
+            <% end %>
+          </ul>
         <% end %>
       </div>
     </div>
@@ -63,9 +64,7 @@ defmodule LiveChatWeb.LobbyLive do
   end
 
   def handle_event("save", %{"room" => room_params}, socket) do
-    create_attrs = Map.put(room_params, "created_by", socket.assigns.name)
-
-    case Rooms.create_room(create_attrs) do
+    case Rooms.create_room(room_params) do
       {:ok, room} ->
         PubSub.broadcast(@pubsub, @topic, {:put, room})
         {:noreply, socket}
