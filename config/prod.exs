@@ -11,7 +11,7 @@ import Config
 # before starting your production server.
 host_name = "lit-basin-14283.herokuapp.com/"
 
-config :live_chat, CarrierWeb.Endpoint,
+config :live_chat, LiveChatWeb.Endpoint,
   url: [scheme: "https", host: host_name, port: 443],
   force_ssl: [rewrite_on: [:x_forwarded_proto]],
   cache_static_manifest: "priv/static/cache_manifest.json",
