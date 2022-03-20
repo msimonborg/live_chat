@@ -4,6 +4,7 @@ defmodule LiveChatWeb.RoomLive do
   alias LiveChat.Messages
   alias LiveChat.Messages.Message
   alias LiveChat.Rooms
+  alias LiveChatWeb.Presence
   alias Phoenix.PubSub
 
   @pubsub LiveChat.PubSub
@@ -53,6 +54,13 @@ defmodule LiveChatWeb.RoomLive do
       <%= for name <- @typing do %>
         <p><%= name %> is typing...</p>
       <% end %>
+
+      <h1 class="relative flex justify-center text-xl my-4">Users in this room:</h1>
+      <div class="w-full my-4 h-24 border border-solid rounded-md border-gray-500 overflow-y-auto">
+        <%= for user <- @users_in_room do %>
+          <p class="break-words my-1"><%= user %></p>
+        <% end %>
+      </div>
     </div>
     """
   end
@@ -62,6 +70,7 @@ defmodule LiveChatWeb.RoomLive do
     room = Rooms.get_room!(id, preload: [:messages])
     changeset = Messages.change_message(%Message{})
     topic = topic(id)
+    Presence.track(self(), topic, socket.assigns.name, %{})
     PubSub.subscribe(@pubsub, topic)
 
     socket =
@@ -73,6 +82,7 @@ defmodule LiveChatWeb.RoomLive do
       |> assign(:typing, [])
       |> assign(:refresh_input, false)
       |> assign(:local_timezone, "Etc/UTC")
+      |> assign(:users_in_room, users_in_room(topic))
 
     {:ok, socket}
   end
@@ -131,6 +141,10 @@ defmodule LiveChatWeb.RoomLive do
     {:noreply, update(socket, :typing, fn typing -> List.delete(typing, name) end)}
   end
 
+  def handle_info(%Phoenix.Socket.Broadcast{event: "presence_diff"}, socket) do
+    {:noreply, assign(socket, :users_in_room, users_in_room(socket.assigns.topic))}
+  end
+
   defp topic(id), do: "room:#{id}"
 
   defp format_local_time(naive_datetime, timezone) do
@@ -138,5 +152,11 @@ defmodule LiveChatWeb.RoomLive do
     |> Timex.to_datetime()
     |> Timex.Timezone.convert(timezone)
     |> Timex.format!("%I:%M %p", :strftime)
+  end
+
+  defp users_in_room(topic) do
+    topic
+    |> Presence.list()
+    |> Map.keys()
   end
 end

@@ -1,6 +1,8 @@
 defmodule LiveChatWeb.LobbyLive do
   use LiveChatWeb, :live_view
 
+  import LiveChatWeb.UserAuth, only: [online_user_count: 0]
+
   alias LiveChat.Rooms
   alias LiveChat.Rooms.Room
   alias LiveChatWeb.RoomLive
@@ -13,8 +15,9 @@ defmodule LiveChatWeb.LobbyLive do
   def render(assigns) do
     ~H"""
     <div class="w-full h-auto p-8">
-        <h1 class="relative flex justify-center text-xl my-4">Hello <%= @name %></h1>
-        <h2 class="relative flex justify-center text-md my-4">Create a new room</h2>
+        <h1 class="relative flex justify-center text-2xl my-4">Hello <%= @name %></h1>
+        <h3 class="relative flex justify-center text-md my-4"><%= display_online_user_count(@online_user_count) %></h3>
+        <h2 class="relative flex justify-center text-lg my-4">Create a new room</h2>
       <.form let={f} for={@changeset} phx-change="validate" phx-submit="save">
         <div class="block">
           <%= label f, :name, class: "text-md w-full block" %>
@@ -54,7 +57,14 @@ defmodule LiveChatWeb.LobbyLive do
     rooms = Rooms.list_rooms() |> Enum.reverse()
     changeset = Rooms.change_room(%Room{})
     PubSub.subscribe(@pubsub, @topic)
-    {:ok, assign(socket, rooms: rooms, changeset: changeset)}
+
+    socket =
+      socket
+      |> assign(:rooms, rooms)
+      |> assign(:changeset, changeset)
+      |> assign(:online_user_count, online_user_count())
+
+    {:ok, socket}
   end
 
   @impl true
@@ -78,5 +88,24 @@ defmodule LiveChatWeb.LobbyLive do
   def handle_info({:put, room}, socket) do
     rooms = [room | socket.assigns.rooms]
     {:noreply, assign(socket, :rooms, rooms)}
+  end
+
+  def handle_info(:user_change, socket) do
+    {:noreply, assign(socket, :online_user_count, online_user_count())}
+  end
+
+  @impl true
+  def terminate(_reason, _socket) do
+    PubSub.broadcast(@pubsub, @topic, :user_change)
+    :ok
+  end
+
+  defp display_online_user_count(count) do
+    case count do
+      0 -> "There is no one online."
+      1 -> "You are the only user online."
+      2 -> "There is 1 other user online."
+      num -> "There are #{num - 1} other users online."
+    end
   end
 end

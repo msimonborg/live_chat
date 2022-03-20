@@ -3,8 +3,11 @@ defmodule LiveChatWeb.UserAuth do
 
   alias LiveChatWeb.Presence
   alias LiveChatWeb.Router.Helpers, as: Routes
+  alias Phoenix.PubSub
 
-  @topic "users_online"
+  @pubsub LiveChat.PubSub
+  @pubsub_topic "lobby"
+  @presence_topic "users_online"
 
   def on_mount(:default, _params, session, socket) do
     name = Map.get(session, "username")
@@ -19,11 +22,17 @@ defmodule LiveChatWeb.UserAuth do
   end
 
   def online?(name) do
-    @topic
-    |> Presence.list()
-    |> Map.keys()
+    users_online()
     |> Enum.member?(name)
   end
+
+  def users_online do
+    @presence_topic
+    |> Presence.list()
+    |> Map.keys()
+  end
+
+  def online_user_count, do: length(users_online())
 
   defp authorization_hook(socket) do
     attach_hook(socket, :authorize, :handle_info, fn
@@ -36,7 +45,8 @@ defmodule LiveChatWeb.UserAuth do
               |> redirect(to: Routes.user_path(socket, :new))
 
             false ->
-              Presence.track(self(), @topic, name, %{})
+              Presence.track(self(), @presence_topic, name, %{})
+              PubSub.broadcast(@pubsub, @pubsub_topic, :user_change)
               socket
           end
 
