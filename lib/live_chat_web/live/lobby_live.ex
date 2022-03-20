@@ -12,33 +12,45 @@ defmodule LiveChatWeb.LobbyLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <h1>Hello <%= @name %></h1>
-    <h2>Create a new room</h2>
-    <.form let={f} for={@changeset} phx-change="validate" phx-submit="save">
-      <%= label f, :name %>
-      <%= text_input f, :name %>
-      <%= error_tag f, :name %>
+    <div class="w-full h-auto p-8">
+        <h1 class="relative flex justify-center text-xl my-4">Hello <%= @name %></h1>
+        <h2 class="relative flex justify-center text-md my-4">Create a new room</h2>
+      <.form let={f} for={@changeset} phx-change="validate" phx-submit="save">
+        <div class="block">
+          <%= label f, :name, class: "text-md w-full block" %>
+          <%= text_input f, :name, class: "relative flex justify-center text-md mb-4 w-full block border border-gray-300 rounded-md" %>
+          <div class="mt-4 -mb-2">
+            <%= error_tag f, :name %>
+          </div>
+        </div>
 
-      <%= label f, :description %>
-      <%= textarea f, :description, placeholder: "Optional" %>
-      <%= error_tag f, :description %>
+        <div class="block">
+          <%= label f, :description, class: "text-md w-full block" %>
+          <%= textarea f, :description, placeholder: "Optional", class: "relative flex justify-center text-md mb-4 w-full block border border-gray-300 rounded-md" %>
+          <div class="mt-4 -mb-2">
+            <%= error_tag f, :description %>
+          </div>
+        </div>
 
-      <%= submit "Create room" %>
-    </.form>
-    <%= unless Enum.empty?(@rooms) do %>
-      <h2>Join a room:</h2>
-      <ul>
-        <%= for room <- @rooms do %>
-          <li><a href={Routes.live_path(@socket, RoomLive, room)}><%= room.name %> - created by <%= room.created_by %></a></li>
+        <%= submit "Create room", class: "px-4 py-2 border border-transparent rounded-md bg-indigo-600 text-white hover:bg-indigo-700"%>
+      </.form>
+      <div class="w-full h-auto py-8">
+        <%= unless Enum.empty?(@rooms) do %>
+        <h2 class="text-lg sm:text-xl">Join a room</h2>
+        <ul>
+          <%= for room <- @rooms do %>
+            <li><a class="text-indigo-600 hover:text-indigo-800" href={Routes.live_path(@socket, RoomLive, room)}><%= room.name %> - created by <%= room.created_by %></a></li>
+          <% end %>
+        </ul>
         <% end %>
-      </ul>
-    <% end %>
+      </div>
+    </div>
     """
   end
 
   @impl true
   def mount(_params, _session, socket) do
-    rooms = Rooms.list_rooms()
+    rooms = Rooms.list_rooms() |> Enum.reverse()
     changeset = Rooms.change_room(%Room{})
     PubSub.subscribe(@pubsub, @topic)
     {:ok, assign(socket, rooms: rooms, changeset: changeset)}

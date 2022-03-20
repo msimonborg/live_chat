@@ -7,23 +7,42 @@
     <%= csrf_meta_tag() %>
     <%= live_title_tag assigns[:page_title] || "LiveChat", suffix: " · Phoenix Framework" %>
     <link phx-track-static rel="stylesheet" href={Routes.static_path(@conn, "/assets/app.css")}/>
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
     <script defer phx-track-static type="text/javascript" src={Routes.static_path(@conn, "/assets/app.js")}></script>
   </head>
   <body>
     <header>
-      <section class="container">
-        <nav>
-          <ul>
-            <li><a href="https://hexdocs.pm/phoenix/overview.html">Get Started</a></li>
+      <nav class="bg-gray-200">
+        <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+          <div class="relative flex items-center justify-between h-24">
+            <div class="flex-1 flex items-center justify-center sm:items-stretch">
+              <div class="flex-shrink-0 flex items-center">
+                <a href="https://phoenixframework.org/" class="phx-logo">
+                  <img class="block h-10 sm:h-12 w-auto" src={Routes.static_path(@conn, "/images/phoenix.png")} alt="Phoenix Framework Logo"/>
+                </a>
+              </div>
+              <div class="hidden sm:block sm:ml-6">
+                <div class="flex space-x-4">
+                  <a href="https://hexdocs.pm/phoenix/overview.html" class="text-gray-700 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Get Started</a>
+                  <%= if function_exported?(Routes, :live_dashboard_path, 2) do %>
+                    <%= link "LiveDashboard", to: Routes.live_dashboard_path(@conn, :home), class: "text-gray-700 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium" %>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sm:hidden" id="mobile-menu">
+          <div class="px-2 pt-2 pb-3 space-y-1">
+            <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
+            <a href="https://hexdocs.pm/phoenix/overview.html" class="text-gray-700 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Get Started</a>
             <%= if function_exported?(Routes, :live_dashboard_path, 2) do %>
-              <li><%= link "LiveDashboard", to: Routes.live_dashboard_path(@conn, :home) %></li>
+              <%= link "LiveDashboard", to: Routes.live_dashboard_path(@conn, :home), class: "text-gray-700 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium" %>
             <% end %>
-          </ul>
-        </nav>
-        <a href="https://phoenixframework.org/" class="phx-logo">
-          <img src={Routes.static_path(@conn, "/images/phoenix.png")} alt="Phoenix Framework Logo"/>
-        </a>
-      </section>
+          </div>
+        </div>
+      </nav>
     </header>
     <%= @inner_content %>
   </body>

@@ -6,16 +6,33 @@ defmodule LiveChatWeb.UserFormLive do
 
   @impl true
   def render(assigns) do
-    disabled = unless assigns.changeset.valid?, do: true, else: false
-    assigns = assign(assigns, :disabled, disabled)
+    opts =
+      if assigns.changeset.valid? do
+        [
+          disabled: false,
+          class:
+            "w-full py-1 border border-transparent rounded-md bg-indigo-600 text-white hover:bg-indigo-700"
+        ]
+      else
+        [
+          disabled: true,
+          class: "w-full py-1 border border-transparent rounded-md bg-indigo-300 text-white"
+        ]
+      end
+
+    assigns = assign(assigns, :opts, opts)
 
     ~H"""
-    <.form let={f} for={@changeset} phx-change="validate" action={"/"} >
-      <%= text_input f, :name %>
-      <%= error_tag f, :name %>
+    <div class="w-full">
+      <.form let={f} for={@changeset} phx-change="validate" action={"/"}>
+        <%= text_input f, :name, class: "relative flex justify-center text-md my-4 w-full block border border-gray-300 rounded-md" %>
+        <div class="mt-4 -mb-2">
+          <%= error_tag f, :name %>
+        </div>
 
-      <%= submit "Join", disabled: @disabled %>
-    </.form>
+        <%= submit "Join", @opts %>
+      </.form>
+    </div>
     """
   end
 

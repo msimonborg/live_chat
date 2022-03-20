@@ -10,27 +10,50 @@ defmodule LiveChatWeb.RoomLive do
 
   @impl true
   def render(assigns) do
+    input_opts =
+      if assigns.refresh_input do
+        [value: ""]
+      else
+        []
+      end
+      |> Keyword.merge(
+        placeholder: "Message",
+        id: "message-input",
+        class:
+          "relative flex justify-center text-md mb-4 w-full block border border-gray-300 rounded-md"
+      )
+
+    assigns = assign(assigns, :input_opts, input_opts)
+
     ~H"""
-    <h1><%= @room.name %></h1>
-    <h3><%= @room.description %></h3>
+    <div class="w-full h-auto p-8">
+      <h1 class="relative flex justify-center text-xl my-4"><%= @room.name %></h1>
+      <h2 class="relative flex justify-center text-md my-4"><%= @room.description %></h2>
 
-    <textarea rows="8" class="chat-box">
-      <%= for message <- @messages do %>
-        <%= message.created_by %> - <%= message.body %>
+      <div class="w-full h-80 sm:h-96 border border-solid rounded-md border-gray-500 overflow-y-auto" phx-hook="ChatRoom" id="chat-box">
+        <div class="flex flex-col-reverse justify-end h-full">
+          <%= for message <- @messages do %>
+            <p class="break-words"><%= "#{format_local_time(message.inserted_at, @local_timezone)} - #{message.created_by} - #{message.body}" %></p>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="w-full h-auto pt-8 pb-2">
+        <p>What's on your mind, <%= @name %>?</p>
+      </div>
+
+      <.form let={f} for={@changeset} phx-change="input" phx-submit="save">
+        <div class="block">
+          <%= text_input f, :body, @input_opts %>
+          <%= hidden_input f, :created_by, value: @name %>
+          <%= submit "Send", class: "w-full py-1 border border-transparent rounded-md bg-indigo-600 text-white hover:bg-indigo-700" %>
+        </div>
+      </.form>
+
+      <%= for name <- @typing do %>
+        <p><%= name %> is typing...</p>
       <% end %>
-    </textarea>
-
-    <p>What's on your mind, <%= @name %>?</p>
-
-    <.form let={f} for={@changeset} phx-change="input" phx-submit="save">
-      <%= textarea f, :body, placeholder: "Message" %>
-      <%= hidden_input f, :created_by, value: @name %>
-      <%= submit "Send" %>
-    </.form>
-
-    <%= for name <- @typing do %>
-      <p><%= name %> is typing...</p>
-    <% end %>
+    </div>
     """
   end
 
@@ -44,10 +67,12 @@ defmodule LiveChatWeb.RoomLive do
     socket =
       socket
       |> assign(:room, room)
-      |> assign(:messages, room.messages)
+      |> assign(:messages, Enum.reverse(room.messages))
       |> assign(:changeset, changeset)
       |> assign(:topic, topic)
       |> assign(:typing, [])
+      |> assign(:refresh_input, false)
+      |> assign(:local_timezone, "Etc/UTC")
 
     {:ok, socket}
   end
@@ -65,7 +90,7 @@ defmodule LiveChatWeb.RoomLive do
       end
 
     PubSub.broadcast(@pubsub, topic, pubsub_msg)
-    {:noreply, socket}
+    {:noreply, assign(socket, :refresh_input, false)}
   end
 
   def handle_event("save", %{"message" => message_params}, socket) do
@@ -73,9 +98,14 @@ defmodule LiveChatWeb.RoomLive do
     topic = socket.assigns.topic
     name = socket.assigns.name
     {:ok, message} = Messages.publish_message_to_room(room, message_params)
+    changeset = Messages.change_message(%Message{})
     PubSub.broadcast(@pubsub, topic, {:not_typing, name})
     PubSub.broadcast(@pubsub, topic, {:new_message, message})
-    {:noreply, socket}
+    {:noreply, assign(socket, changeset: changeset, refresh_input: true)}
+  end
+
+  def handle_event("local_timezone", %{"local_timezone" => local_timezone}, socket) do
+    {:noreply, assign(socket, :local_timezone, local_timezone)}
   end
 
   @impl true
@@ -91,7 +121,7 @@ defmodule LiveChatWeb.RoomLive do
   end
 
   def handle_info({:new_message, message}, socket) do
-    socket = update(socket, :messages, fn messages -> List.insert_at(messages, -1, message) end)
+    socket = update(socket, :messages, fn messages -> [message | messages] end)
     {:noreply, socket}
   end
 
@@ -100,4 +130,11 @@ defmodule LiveChatWeb.RoomLive do
   end
 
   defp topic(id), do: "room:#{id}"
+
+  defp format_local_time(naive_datetime, timezone) do
+    naive_datetime
+    |> Timex.to_datetime()
+    |> Timex.Timezone.convert(timezone)
+    |> Timex.format!("%I:%M %p", :strftime)
+  end
 end
